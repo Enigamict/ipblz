@@ -22,12 +22,11 @@ class Portscan: # ポートスキャナー TCP UDP TCP/SYN スキャンを実装
             print("{}/tcp Close".format(self.port))
 
 class Ping: # PINGは男の嗜み
-    def __init__(self, ip, port):
+    def __init__(self, ip):
         self.ip = ip
-        self.port = port
     def ping(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP) # rawソケットに変えているのでpingを実行する場合管理者権限が必要になる
-        sock.sendto(b'\x08\x00\xf7\xff\x00\x00\x00\x00', (self.ip, self.port)) # 迫真チェックサム計算部を忘れずに
+        sock.sendto(b'\x08\x00\xf7\xff\x00\x00\x00\x00', (self.ip, 0)) # 迫真チェックサム計算部を忘れずに
 
         data = sock.recv(255)
 

@@ -25,7 +25,7 @@ class Ping: # PINGは男の嗜み
     def __init__(self, ip, numbertimes):
         self.ip = ip
         self.numbertimes = numbertimes
-    def ping(self):
+    def send(self):
         request = 0
         reply = 0
         try:

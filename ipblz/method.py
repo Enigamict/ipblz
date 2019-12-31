@@ -44,3 +44,13 @@ class Ping: # PINGは男の嗜み
         except KeyboardInterrupt: # Ctrl-Cでキャンセル
             print("Ctrl-C")
             print("送信した回数 = {} 受信した回数 = {}".format(request, reply))
+# -- 色々やってる -- #
+#class Arp:
+#    def __init__(self, ip):
+#        self.ip = ip
+
+#    def send(self):
+#        sock = socket.socket(socket.AF_INET, socket.SOCK_RAW)
+#        sock.sendto(b'\x01\x08\x06\x04\x01' ,)
+#        reply = sock.recv(255)
+#        print(reply)

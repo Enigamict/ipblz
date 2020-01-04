@@ -47,13 +47,3 @@ class Ping: # PINGは男の嗜み
             print("送信した回数 = {} 受信した回数 = {}".format(request, reply))
         except socket.timeout: # タイムアウト処理 60秒経過でタイムアウトとなる
             print("エラーです。タイムアウト")
-# -- 色々やってる -- #
-#class Arp:
-#    def __init__(self, ip):
-#        self.ip = ip
-
-#    def send(self):
-#        sock = socket.socket(socket.AF_INET, socket.SOCK_RAW)
-#        sock.sendto(b'\x01\x08\x06\x04\x01' ,)
-#        reply = sock.recv(255)
-#        print(reply)

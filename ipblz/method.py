@@ -47,3 +47,27 @@ class Ping: # PINGは男の嗜み
             print("送信した回数 = {} 受信した回数 = {}".format(request, reply))
         except socket.timeout: # タイムアウト処理 60秒経過でタイムアウトとなる
             print("エラーです。タイムアウト")
+            
+class sniffer: # 悪用厳禁
+    def __init__(self, ip, protocolselect):
+        self.ip = ip
+        self.protocolselect = protocolselect
+
+    def scan(self): # IP ICMPのヘッダを含んだものをキャプチャしている
+        if self.protocolselect == "IP": # プロトコル選択 
+            protocol = socket.IPPROTO_IP
+        if self.protocolselect == "ICMP":
+            protocol = socket.IPPROTO_ICMP
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, protocol)
+        sock.bind((self.ip, 0)) # ホストIPと結びつけ
+        sock.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
+
+        if os.name == "nt": # Windowsの判定
+            sock.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON) # 第二引数でプロミスキャスモードをON
+ 
+        scandata = sock.recvfrom(65565)
+        print("指定したプロトコル{} \n IP:{}: \n データ{}".format(self.protocolselect ,scandata[1][0], scandata[0]))
+ 
+        if os.name == "nt":
+            sock.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF) # OFFにしている

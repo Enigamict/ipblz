@@ -1,5 +1,6 @@
 import socket
 import time
+
 class Dns: # DNS（これいる？）
     def __init__(self, hostname):
         self.hostname = hostname
@@ -49,18 +50,19 @@ class Ping: # PINGは男の嗜み
             print("エラーです。タイムアウト")
             
 class sniffer: # 悪用厳禁
-    def __init__(self, ip, protocolselect):
-        self.ip = ip
+    def __init__(self, protocolselect):
         self.protocolselect = protocolselect
 
-    def scan(self): # IP ICMPのヘッダを含んだものをキャプチャしている
+    def scan(self): # IP ICMPのヘッダを含んだものをキャプチャする 
+        host = socket.gethostbyname(socket.gethostname())
+        
         if self.protocolselect == "IP": # プロトコル選択 
             protocol = socket.IPPROTO_IP
         if self.protocolselect == "ICMP":
             protocol = socket.IPPROTO_ICMP
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, protocol)
-        sock.bind((self.ip, 0)) # ホストIPと結びつけ
+        sock.bind((host, 0)) # ホストIPと結びつけ
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
 
         if os.name == "nt": # Windowsの判定

@@ -1,14 +1,6 @@
 import socket
 import time
 
-class Dns: # DNS（これいる？）
-    def __init__(self, hostname):
-        self.hostname = hostname
-
-    def dnsipback(self):
-        ipconversion = socket.gethostbyname(self.hostname) # str型で取ってる
-        print(ipconversion)
-
 class Portscan: # ポートスキャナー TCP UDP TCP/SYN スキャンを実装(予定)
     def __init__(self, ip, port):
         self.ip = ip

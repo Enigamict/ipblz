@@ -65,3 +65,18 @@ class sniffer: # 悪用厳禁
  
         if os.name == "nt":
             sock.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF) # OFFにしている
+
+#class tracer:
+#    def __init__(self, host):
+#        self.host = host
+
+#    def send(self):
+#        TTL = 1
+#        while True:
+#            dns = socket.gethostbyname(self.host)
+#            sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
+#            sock.settimeout(10)
+#            sock.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL)
+#            sock.sendto(b'\x08\x00\xf7\xff\x00\x00\x00\x00',(dns, 0))
+#
+#            data, addr = sock.recvfrom(512)

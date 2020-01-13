@@ -1,7 +1,7 @@
 import socket
 import time
 
-class portscan: # ポートスキャナー TCP UDP TCP/SYN スキャンを実装(予定)
+class portscan: # ポートスキャナー
     def __init__(self, ip, port):
         self.ip = ip
         self.port = port
@@ -13,6 +13,19 @@ class portscan: # ポートスキャナー TCP UDP TCP/SYN スキャンを実装
             print("{}/tcp Open".format(self.port))
         else:
             print("{}/tcp Close".format(self.port))
+            
+    def udpscan(self): # UDP めっちゃアレだから後日直す
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.getprotobyname('udp'))
+            sock.bind(("", self.port))
+            sock.sendto(bytes(1024), (self.ip, self.port))
+            sock.settimeout(5)
+            data = sock.recv(1024)
+            if data != None:
+                print("{}/udp Open".format(self.port))
+        except socket.timeout:
+            print("{}/udp Close".format(self.port))
+
 
 class ping: # PINGは男の嗜み
     def __init__(self, ip, numbertimes, ttl):

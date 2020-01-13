@@ -1,7 +1,7 @@
 import socket
 import time
 
-class Portscan: # ポートスキャナー TCP UDP TCP/SYN スキャンを実装(予定)
+class portscan: # ポートスキャナー TCP UDP TCP/SYN スキャンを実装(予定)
     def __init__(self, ip, port):
         self.ip = ip
         self.port = port
@@ -14,10 +14,11 @@ class Portscan: # ポートスキャナー TCP UDP TCP/SYN スキャンを実装
         else:
             print("{}/tcp Close".format(self.port))
 
-class Ping: # PINGは男の嗜み
-    def __init__(self, ip, numbertimes):
+class ping: # PINGは男の嗜み
+    def __init__(self, ip, numbertimes, ttl):
         self.ip = ip
         self.numbertimes = numbertimes
+        self.ttl = ttl
     def send(self):
         request = 0
         reply = 0
@@ -28,10 +29,11 @@ class Ping: # PINGは男の嗜み
                 time.sleep(1)
                 sock.sendto(b'\x08\x00\xf7\xff\x00\x00\x00\x00',(self.ip, 0)) # チェックサム計算を忘れずに
                 sock.settimeout(60)
+                sock.setsockopt(socket.SOL_IP, socket.IP_TTL, self.ttl) # 指定されたTTLをセットしている
                 echoreply = sock.recv(255)
                 if echoreply[20] == 0: # 返ってきたEchoReplyのTypeを見ている
                     reply += 1
-                    print("{} done".format(self.ip))
+                    print("TTL {} {} done".format(self.ttl, self.ip))
                 if request == self.numbertimes: # 指定した回数とrequestが同じになればbreak
                     print("送信した回数 = {} 受信した回数 = {}".format(request, reply))
                     break

@@ -14,7 +14,7 @@ class portscan: # ポートスキャナー
         else:
             print("{}/tcp Close".format(self.port))
             
-    def udpscan(self): # UDP めっちゃアレだから後日直す
+    def udpscan(self): # UDP がばい
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.getprotobyname('udp'))
             sock.bind(("", self.port))
@@ -28,10 +28,9 @@ class portscan: # ポートスキャナー
 
 
 class ping: # PINGは男の嗜み
-    def __init__(self, ip, numbertimes, ttl):
-        self.ip = ip
+    def __init__(self, host, numbertimes):
+        self.ip = host
         self.numbertimes = numbertimes
-        self.ttl = ttl
     def send(self):
         request = 0
         reply = 0
@@ -42,11 +41,10 @@ class ping: # PINGは男の嗜み
                 time.sleep(1)
                 sock.sendto(b'\x08\x00\xf7\xff\x00\x00\x00\x00',(self.ip, 0)) # チェックサム計算を忘れずに
                 sock.settimeout(60)
-                sock.setsockopt(socket.SOL_IP, socket.IP_TTL, self.ttl) # 指定されたTTLをセットしている
                 echoreply = sock.recv(255)
                 if echoreply[20] == 0: # 返ってきたEchoReplyのTypeを見ている
                     reply += 1
-                    print("TTL {} {} done".format(self.ttl, self.ip))
+                    print("{} done".format(self.host))
                 if request == self.numbertimes: # 指定した回数とrequestが同じになればbreak
                     print("送信した回数 = {} 受信した回数 = {}".format(request, reply))
                     break

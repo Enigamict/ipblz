@@ -1,5 +1,6 @@
 import socket
 import time
+import asyncio
 
 class portscan: # ポートスキャナー
     def __init__(self, ip, port):

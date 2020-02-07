@@ -1,5 +1,6 @@
 import socket
 import time
+from header import *
 
 class portscan: # ポートスキャナー
     def __init__(self, ip, port):
@@ -53,28 +54,36 @@ class ping: # PINGは男の嗜み
             print("送信した回数 = {} 受信した回数 = {}".format(request, reply))
         except socket.timeout: # タイムアウト処理 60秒経過でタイムアウトとなる
             print("エラーです。タイムアウト")
-            
-class sniffer: # 悪用厳禁
-    def __init__(self, protocolselect):
-        self.protocolselect = protocolselect
-
-    def scan(self): # IP ICMPのヘッダを含んだものをキャプチャする 
+           
+class traceroute: # 行く道は一つ
+    def scan(self): # 未完成,まだ関係するパケットしか拾えない
         host = socket.gethostbyname(socket.gethostname())
-        
-        if self.protocolselect == "IP": # プロトコル選択 
-            protocol = socket.IPPROTO_IP
-        if self.protocolselect == "ICMP":
-            protocol = socket.IPPROTO_ICMP
+        sock_icmp__protocol = socket.IPPROTO_ICMP
 
-        sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, protocol)
-        sock.bind((host, 0)) # ホストIPと結びつけ
-        sock.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
+        terce_scan = socket.socket(socket.AF_INET, socket.SOCK_RAW, sock_icmp__protocol)
 
-        if os.name == "nt": # Windowsの判定
-            sock.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON) # 第二引数でプロミスキャスモードをON
- 
-        scandata = sock.recvfrom(65565)
-        print("指定したプロトコル{} \n IP:{}: \n データ{}".format(self.protocolselect ,scandata[1][0], scandata[0]))
- 
+        terce_scan.bind((host, 0)) 
+        terce_scan.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
         if os.name == "nt":
-            sock.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF) # OFFにしている
+            terce_scan.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
+
+        while True:
+            data = terce_scan.recvfrom(65565)[0]
+            # IP構造体を作成
+            ip_header = IP(data[0:20])
+            # ihlフィールドに基づいて計算。
+            offset = ip_header.ihl * 4
+            buf = data[offset:offset + sizeof(ICMP)]　# IPヘッダのサイズとICMPヘッダのサイズを計算してICMPヘッダの位置を知り、構造体に入れることに成功している。
+
+            # ICMP構造体を作成
+            icmp_header = ICMP(buf)
+
+            # 元のtracerouteを基準に
+            if icmp_header.type == 11 and icmp_header.code == 0:
+
+                print("{},{}".format(ip_header.src_address, ip_header.dst_address))
+
+
+        # Windowsの場合はプロミスキャスモードを無効
+        if os.name == "nt":
+            terce_scan.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF)

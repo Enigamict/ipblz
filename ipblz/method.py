@@ -56,8 +56,10 @@ class ping: # PINGは男の嗜み
             print("エラーです。タイムアウト")
            
 class traceroute: # 行く道は一つ
-    def scan(self): # 未完成,まだ関係するパケットしか拾えない
+    def scan(self): # 未完成
         host = socket.gethostbyname(socket.gethostname())
+        count = 0
+        judge_count = 0
         sock_icmp__protocol = socket.IPPROTO_ICMP
 
         terce_scan = socket.socket(socket.AF_INET, socket.SOCK_RAW, sock_icmp__protocol)
@@ -66,23 +68,31 @@ class traceroute: # 行く道は一つ
         terce_scan.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
         if os.name == "nt":
             terce_scan.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
+        
+        try:
+            while True:
+                data = terce_scan.recvfrom(65565)[0]
+                # IP構造体を作成
+                ip_header = IP(data[0:20])
+                # ihlフィールドに基づいて計算。
+                offset = ip_header.ihl * 4
+                # IPヘッダのサイズとICMPヘッダのサイズを計算してICMPヘッダの位置を知り、構造体に入れることに成功している。
+                buf = data[offset:offset + sizeof(ICMP)]
 
-        while True:
-            data = terce_scan.recvfrom(65565)[0]
-            # IP構造体を作成
-            ip_header = IP(data[0:20])
-            # ihlフィールドに基づいて計算。
-            offset = ip_header.ihl * 4
-            buf = data[offset:offset + sizeof(ICMP)]　# IPヘッダのサイズとICMPヘッダのサイズを計算してICMPヘッダの位置を知り、構造体に入れることに成功している。
+                # ICMP構造体を作成
+                icmp_header = ICMP(buf)
 
-            # ICMP構造体を作成
-            icmp_header = ICMP(buf)
-
-            # 元のtracerouteを基準に
-            if icmp_header.type == 11 and icmp_header.code == 0:
-
-                print("{},{}".format(ip_header.src_address, ip_header.dst_address))
-
+                # 元のtracerouteを基準に
+                if icmp_header.type == 11 and icmp_header.code == 0:
+                    judge_count += 1
+                    if judge_count == 3: # 誰かいい書き方を教えてください,ここで3を基準にしているのは飛んできたTimeExceededが3つあるので重複するため
+                        count += 1
+                        print("{}:{}".format(count,ip_header.src_address))
+                        judge_count = 0
+                    
+                    
+        except KeyboardInterrupt: # Ctrl-C
+            print("Ctrl-C")
 
         # Windowsの場合はプロミスキャスモードを無効
         if os.name == "nt":

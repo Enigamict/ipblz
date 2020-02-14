@@ -29,8 +29,8 @@ class portscan: # ポートスキャナー
 
 
 class ping: # PINGは男の嗜み
-    def __init__(self, host, numbertimes):
-        self.ip = host
+     def __init__(self, host, numbertimes):
+        self.host = host
         self.numbertimes = numbertimes
     def send(self):
         request = 0
@@ -38,15 +38,31 @@ class ping: # PINGは男の嗜み
         try:
             while True:
                 request += 1
+
                 sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP) # rawソケットに変えているのでpingを実行する場合管理者権限が必要になる
+
+                sock.sendto(b'\x08\x00\xf7\xff\x00\x00\x00\x00',(self.host, 0)) # 迫真チェックサム計算部を忘れずに
+
                 time.sleep(1)
-                sock.sendto(b'\x08\x00\xf7\xff\x00\x00\x00\x00',(self.ip, 0)) # チェックサム計算を忘れずに
+
                 sock.settimeout(60)
-                echoreply = sock.recv(255)
-                if echoreply[20] == 0: # 返ってきたEchoReplyのTypeを見ている
+                # 構造体にはめていく
+                echoreply = sock.recvfrom(255)[0]
+
+                ip_header = IP(echoreply[0:20])
+
+                offset = ip_header.ihl * 4
+
+                buf = echoreply[offset:offset + sizeof(ICMP)]
+
+                icmp_header = ICMP(buf)
+                
+                # echoreplyのtypeは0
+                if icmp_header.type == 0:
                     reply += 1
-                    print("{} done".format(self.host))
+                    print("{} = {} done TTL = {}".format(self.host, ip_header.src_address, ip_header.ttl))
                 if request == self.numbertimes: # 指定した回数とrequestが同じになればbreak
+                    print("{} = {} ping total".format(self.host, ip_header.src_address))
                     print("送信した回数 = {} 受信した回数 = {}".format(request, reply))
                     break
         except KeyboardInterrupt: # Ctrl-Cでキャンセル

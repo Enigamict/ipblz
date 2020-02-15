@@ -2,31 +2,32 @@ import socket
 import time
 from header import *
 
-class portscan: # ポートスキャナー
-    def __init__(self, ip, port):
-        self.ip = ip
-        self.port = port
+class udp: # UDP形式のパケットを送信開示する
+    def __init__(self, host):
+        self.host = host
 
-    def tcpscan(self): # TCP
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        code = sock.connect_ex((self.ip, self.port)) # ipはstr型を取ります。portはintで
-        if code == 0: # connect_exは返信が返ってきた場合0を返します。よってこの条件式
-            print("{}/tcp Open".format(self.port))
-        else:
-            print("{}/tcp Close".format(self.port))
-            
-    def udpscan(self): # UDP がばい
+    def send(self): # 未完成
         try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.getprotobyname('udp'))
-            sock.bind(("", self.port))
-            sock.sendto(bytes(1024), (self.ip, self.port))
-            sock.settimeout(5)
-            data = sock.recv(1024)
-            if data != None:
-                print("{}/udp Open".format(self.port))
-        except socket.timeout:
-            print("{}/udp Close".format(self.port))
+            sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_UDP)
 
+            sock.sendto(b'\x01\xbb\x01\xbb\x00\x3a\x35\x8f' + bytes(50), (self.host, 0))
+
+            sock.settimeout(5)
+
+            data = sock.recvfrom(255)[0]
+
+            ip_header = IP(data[0:20])
+
+            offset = ip_header.ihl * 4
+
+            buf = data[offset:offset + sizeof(UDP)]
+
+            udp_header = UDP(buf)
+            
+            print(udp_header.source) # バグあり\x01\xbbが\xbb\x01になっている
+
+        except socket.timeout:
+            print("タイムアウト")
 
 class ping: # PINGは男の嗜み
      def __init__(self, host, numbertimes):

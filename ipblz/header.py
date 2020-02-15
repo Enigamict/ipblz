@@ -2,6 +2,20 @@ import struct
 from ctypes import *
 import socket
 
+class UDP(Structure):
+    _fields_ = [
+        ("source",         c_uint16),
+        ("dest",           c_uint16),
+        ("len",            c_uint16),
+        ("check",          c_uint16)
+    ]
+
+    def __new__(self, socket_buffer):
+        return self.from_buffer_copy(socket_buffer)
+
+    def __init__(self, socket_buffer):
+        pass
+
 class IP(Structure):
     _fields_ = [
         ("ihl",           c_uint8, 4),

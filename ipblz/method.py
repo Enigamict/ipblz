@@ -24,7 +24,7 @@ class udp: # UDP形式のパケットを送信開示する
 
             udp_header = UDP(buf)
             
-            print(udp_header.source) # バグあり\x01\xbbが\xbb\x01になっている
+            print(udp_header.source) # バグじゃねーよバイトオーダーについて調べろ
 
         except socket.timeout:
             print("タイムアウト")

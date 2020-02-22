@@ -17,7 +17,7 @@ class UDP(Structure):
         self.source = socket.htons(self.source)
         self.dest = socket.htons(self.dest)
         self.len = socket.htons(self.len)
-        self.check = socket.htons(self.check)
+        self.check = socket.htons(self.check) # Python3.7では非推奨
 
 class IP(Structure):
     _fields_ = [

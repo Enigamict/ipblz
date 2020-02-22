@@ -24,7 +24,11 @@ class udp: # UDP形式のパケットを送信開示する
 
             udp_header = UDP(buf)
             
-            print(udp_header.source) # バグじゃねーよバイトオーダーについて調べろ
+            print("* -- UDP HEADER -- *")       
+            print("src_port = {}".format(udp_header.source)) 
+            print("dest_port = {}".format(udp_header.dest))
+            print("len = {}".format(udp_header.len))
+            print("check_sum = {}".format(hex(udp_header.check)))
 
         except socket.timeout:
             print("タイムアウト")

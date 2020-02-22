@@ -14,7 +14,10 @@ class UDP(Structure):
         return self.from_buffer_copy(socket_buffer)
 
     def __init__(self, socket_buffer):
-        pass
+        self.source = socket.htons(self.source)
+        self.dest = socket.htons(self.dest)
+        self.len = socket.htons(self.len)
+        self.check = socket.htons(self.check)
 
 class IP(Structure):
     _fields_ = [

@@ -5,6 +5,14 @@ from header import *
 class udp: # UDP形式のパケットを送信開示する
     def __init__(self, host):
         self.host = host
+        
+    def checksum(self):
+         a = 0
+         b = []
+         host_adress = socket.gethostbyname(socket.gethostname()).split('.')
+         for i in host_adress:
+            a = int(i)
+            b.append(hex(a))
 
     def send(self): # 未完成
         try:

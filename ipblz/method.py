@@ -3,8 +3,10 @@ import time
 from header import *
 
 class udp: # UDP形式のパケットを送信開示する
-    def __init__(self, host):
+    def __init__(self, host, sport, dport):
         self.host = host
+        self.sport = sport
+        self.dport = dport
         
     def checksum(self, host): # コード汚すぎませんか？
         adress = []
@@ -44,9 +46,11 @@ class udp: # UDP形式のパケットを送信開示する
 
     def send(self): # 未完成
         try:
+            src_port = self.sport.to_bytes(2, 'big')
+            dst_port = self.dport.to_bytes(2, 'big')
             sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_UDP)
 
-            sock.sendto(b'\x01\xbb\x01\xbb\x00\x3a\x35\x8f' + bytes(50), (self.host, 0))
+            sock.sendto(b'%b%b\x00\x3a\x35\x8f' % (src_port, dstport) + bytes(50), (self.host, 0))
 
             sock.settimeout(5)
 

@@ -8,44 +8,57 @@ class udp: # UDP形式のパケットを送信開示する
         self.sport = sport
         self.dport = dport
         
-    def checksum(self, host): # コード汚すぎませんか？
-        adress = []
-        d_adress = []
-        hex_conversion_int = 0
+    def send(self): # 未完成　チェックサム計算雑すぎる
+        try:
+            adress = []
+            d_adress = []
+            hex_conversion_int = 0
         
-        ip_src_dst_2ndbyte_slice = 0
-        ip_src_dst_4ndbyte_slice = 0
+            ip_src_dst_2ndbyte_slice = 0
+            ip_src_dst_4ndbyte_slice = 0
         
-        ip_src_byte_from_1_2 = 0
-        ip_src_byte_from_3_4 = 0
+            ip_src_byte_from_1_2 = 0
+            ip_src_byte_from_3_4 = 0
         
-        dst_ip_byte_from_1_2 = 0
-        det_ip_byte_from_3_4 = 0
-        
-        host_adress = socket.gethostbyname(socket.gethostname()).split('.')
-        dst_adress = self.host.split('.')
-        for i in host_adress:
-            hex_conversion_int = int(i)
-            adress.append(hex(hex_conversion_int))
+            dst_ip_byte_from_1_2 = 0
+            dst_ip_byte_from_3_4 = 0
+
+            ipaddr_sum = 0
+            ip_header_udp_sum = 0
+            take_out_1byte = 0
+            byte_sum = 0
+            bin_len = 0
+            bin_subtraction = 0
+
+            complement = 0
+
+            host_adress = socket.gethostbyname_ex(socket.gethostname())[2][1].split('.')
+            dst_adress = self.host.split('.')
+
+            for i in host_adress:
+                hex_conversion_int = int(i)
+                adress.append(hex(hex_conversion_int))
             for i in dst_adress:
                 hex_conversion_int = int(i)
-                d_adress.append(hex(hex_conversion_int)
+                d_adress.append(hex(hex_conversion_int))
 
-        ip_src_dst_2ndbyte_slice = adress[1][2:4]
-        ip_src_dst_4ndbyte_slice = adress[3][2:4]
-        ip_src_byte_from_1_2 = adress[0] + ip_src_dst_2ndbyte_slice
-        ip_src_byte_from_3_4 = adress[2] + ip_src_dst_4ndbyte_slice
+            ip_src_dst_2ndbyte_slice = adress[1][2:4]
+            ip_src_dst_4ndbyte_slice = adress[3][2:4]
+            ip_src_byte_from_1_2 = adress[0] + ip_src_dst_2ndbyte_slice
+            ip_src_byte_from_3_4 = adress[2] + ip_src_dst_4ndbyte_slice
 
-        ip_src_dst_2ndbyte_slice = d_adress[1][2:4]
-        ip_src_dst_4ndbyte_slice = d_adress[3][2:4]
-        dst_ip_byte_from_1_2 = d_adress[0] + ip_src_dst_2ndbyte_slice
-        dst_ip_byte_from_3_4 = d_adress[2] + ip_src_dst_4ndbyte_slice
-        print(hex(int(ip_src_byte_from_1_2, base = 16) + int(ip_src_byte_from_3_4, base = 16) + int(dst_ip_byte_from_1_2, base = 16) + int(dst_ip_byte_from_3_4, base = 16)))
-
-
-
-    def send(self): # 未完成
-        try:
+            ip_src_dst_2ndbyte_slice = d_adress[1][2:4]
+            ip_src_dst_4ndbyte_slice = d_adress[3][2:4]
+            dst_ip_byte_from_1_2 = d_adress[0] + ip_src_dst_2ndbyte_slice
+            dst_ip_byte_from_3_4 = d_adress[2] + ip_src_dst_4ndbyte_slice
+            ipaddr_sum = int(ip_src_byte_from_1_2, base = 16) + int(ip_src_byte_from_3_4, base = 16) + int(dst_ip_byte_from_1_2, base = 16) + int(dst_ip_byte_from_3_4, base = 16)
+            ip_header_udp_sum = ipaddr_sum + 0x0011 + 0x003a + self.sport + self.dport + 0x003a
+            take_out_1byte = bin(ip_header_udp_sum & 0b01111111111111111)
+            byte_sum = int(take_out_1byte, base = 2) +  0b1
+            bin_len = len(bin(byte_sum)) - 2
+            bin_subtraction = 2**bin_len - 1
+            complement = bin_subtraction - byte_sum
+            
             src_port = self.sport.to_bytes(2, 'big')
             dst_port = self.dport.to_bytes(2, 'big')
             sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_UDP)

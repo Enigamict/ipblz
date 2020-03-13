@@ -1,5 +1,6 @@
 import socket
 import time
+import os
 from header import *
 
 class udp: # UDP形式のパケットを送信開示する
@@ -87,7 +88,7 @@ class udp: # UDP形式のパケットを送信開示する
             print("タイムアウト")
 
 class ping: # PINGは男の嗜み
-     def __init__(self, host, numbertimes):
+    def __init__(self, host, numbertimes):
         self.host = host
         self.numbertimes = numbertimes
     def send(self):

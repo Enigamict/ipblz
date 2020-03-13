@@ -60,11 +60,12 @@ class udp: # UDP形式のパケットを送信開示する
             bin_subtraction = 2**bin_len - 1
             complement = bin_subtraction - byte_sum
             
+            complement_byte = complement.to_bytes(2, 'big')
             src_port = self.sport.to_bytes(2, 'big')
             dst_port = self.dport.to_bytes(2, 'big')
             sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_UDP)
 
-            sock.sendto(b'%b%b\x00\x3a\x35\x8f' % (src_port, dstport) + bytes(50), (self.host, 0))
+            sock.sendto(b'%b%b\x00\x3a%b' % (src_port, dst_port, complement_byte) + bytes(50), (self.host, 0))
 
             sock.settimeout(5)
 

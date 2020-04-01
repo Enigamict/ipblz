@@ -32,37 +32,43 @@ class udp: # UDP形式のパケットを送信開示する
             bin_subtraction = 0
 
             complement = 0
+            complement_byte = b'\x00\x00'
 
-            host_adress = socket.gethostbyname_ex(socket.gethostname())[2][1].split('.')
-            dst_adress = self.host.split('.')
+            if self.checksum == "Yes":
+                host_adress = socket.gethostbyname_ex(socket.gethostname())[2][1].split('.')
+                dst_adress = self.host.split('.')
 
-            for i in host_adress:
-                hex_conversion_int = int(i)
-                adress.append(hex(hex_conversion_int))
-            for i in dst_adress:
-                hex_conversion_int = int(i)
-                d_adress.append(hex(hex_conversion_int))
+                for i in host_adress:
+                    hex_conversion_int = int(i)
+                    adress.append(hex(hex_conversion_int))
+                for i in dst_adress:
+                    hex_conversion_int = int(i)
+                    d_adress.append(hex(hex_conversion_int))
 
-            ip_src_dst_2ndbyte_slice = adress[1][2:4]
-            ip_src_dst_4ndbyte_slice = adress[3][2:4]
-            ip_src_byte_from_1_2 = adress[0] + ip_src_dst_2ndbyte_slice
-            ip_src_byte_from_3_4 = adress[2] + ip_src_dst_4ndbyte_slice
+                ip_src_dst_2ndbyte_slice = adress[1][2:4]
+                ip_src_dst_4ndbyte_slice = adress[3][2:4]
+                ip_src_byte_from_1_2 = adress[0] + ip_src_dst_2ndbyte_slice
+                ip_src_byte_from_3_4 = adress[2] + ip_src_dst_4ndbyte_slice
 
-            ip_src_dst_2ndbyte_slice = d_adress[1][2:4]
-            ip_src_dst_4ndbyte_slice = d_adress[3][2:4]
-            dst_ip_byte_from_1_2 = d_adress[0] + ip_src_dst_2ndbyte_slice
-            dst_ip_byte_from_3_4 = d_adress[2] + ip_src_dst_4ndbyte_slice
-            ipaddr_sum = int(ip_src_byte_from_1_2, base = 16) + int(ip_src_byte_from_3_4, base = 16) + int(dst_ip_byte_from_1_2, base = 16) + int(dst_ip_byte_from_3_4, base = 16)
-            ip_header_udp_sum = ipaddr_sum + 0x0011 + 0x003a + self.sport + self.dport + 0x003a
-            take_out_1byte = bin(ip_header_udp_sum & 0b01111111111111111)
-            byte_sum = int(take_out_1byte, base = 2) +  0b1
-            bin_len = len(bin(byte_sum)) - 2
-            bin_subtraction = 2**bin_len - 1
-            complement = bin_subtraction - byte_sum
+                ip_src_dst_2ndbyte_slice = d_adress[1][2:4]
+                ip_src_dst_4ndbyte_slice = d_adress[3][2:4]
+                dst_ip_byte_from_1_2 = d_adress[0] + ip_src_dst_2ndbyte_slice
+                dst_ip_byte_from_3_4 = d_adress[2] + ip_src_dst_4ndbyte_slice
+                ipaddr_sum = int(ip_src_byte_from_1_2, base = 16) + int(ip_src_byte_from_3_4, base = 16) + int(dst_ip_byte_from_1_2, base = 16) + int(dst_ip_byte_from_3_4, base = 16)
+                ip_header_udp_sum = ipaddr_sum + 0x0011 + 0x003a + self.sport + self.dport + 0x003a
+                take_out_1byte = bin(ip_header_udp_sum & 0b01111111111111111)
+                byte_sum = int(take_out_1byte, base = 2) +  0b1
+                bin_len = len(bin(byte_sum)) - 2
+                bin_subtraction = 2**bin_len - 1
+                complement = bin_subtraction - byte_sum
+                complement_byte = complement.to_bytes(2, 'big')
+
+            else:
+                pass
             
-            complement_byte = complement.to_bytes(2, 'big')
             src_port = self.sport.to_bytes(2, 'big')
             dst_port = self.dport.to_bytes(2, 'big')
+            sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_UDP)
             sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_UDP)
 
             sock.sendto(b'%b%b\x00\x3a%b' % (src_port, dst_port, complement_byte) + bytes(50), (self.host, 0))

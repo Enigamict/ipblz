@@ -137,45 +137,34 @@ class ping: # PINGは男の嗜み
         except socket.timeout: # タイムアウト処理 60秒経過でタイムアウトとなる
             print("エラーです。タイムアウト")
            
-class traceroute: # 行く道は一つ
-    def scan(self): # 未完成
-        host = socket.gethostbyname(socket.gethostname())
+class pacapch:
+    def __init__(self, scannumber):
+        self.scannumber = scannumber
+
+    def scan(self): 
         count = 0
-        judge_count = 0
-        sock_icmp__protocol = socket.IPPROTO_ICMP
+        host = socket.gethostbyname_ex(socket.gethostname())[2][1]
+        scan = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_IP)
+        scan.bind((host, 0)) 
+        scan.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
 
-        terce_scan = socket.socket(socket.AF_INET, socket.SOCK_RAW, sock_icmp__protocol)
-
-        terce_scan.bind((host, 0)) 
-        terce_scan.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
         if os.name == "nt":
-            terce_scan.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
+            scan.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
         
         try:
             while True:
-                data = terce_scan.recvfrom(65565)[0]
-                # IP構造体を作成
+                count += 1
+                data = scan.recvfrom(65565)[0]
+                
                 ip_header = IP(data[0:20])
-                # ihlフィールドに基づいて計算。
-                offset = ip_header.ihl * 4
-                # IPヘッダのサイズとICMPヘッダのサイズを計算してICMPヘッダの位置を知り、構造体に入れることに成功している。
-                buf = data[offset:offset + sizeof(ICMP)]
 
-                # ICMP構造体を作成
-                icmp_header = ICMP(buf)
-
-                # 元のtracerouteを基準に
-                if icmp_header.type == 11 and icmp_header.code == 0:
-                    judge_count += 1
-                    if judge_count == 3: # 誰かいい書き方を教えてください,ここで3を基準にしているのは飛んできたTimeExceededが3つあるので重複するため
-                        count += 1
-                        print("{}:{}".format(count,ip_header.src_address))
-                        judge_count = 0
-                    
+                print("{}: IHL = {} version = {} tos = {} len = {} id = {} offset = {} TTL = {} protocol = {} checksum = {} src = {} dst = {}".format(count, ip_header.ihl, ip_header.version, ip_header.tos, ip_header.len, 
+                ip_header.id, ip_header.offset, ip_header.ttl, ip_header.protocol, ip_header.sum, ip_header.src_address, ip_header.dst_address))             
+                if count == self.scannumber:
+                    scan.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF)
+                    print("{}回のスキャン完了".format(count))
+                    break
                     
         except KeyboardInterrupt: # Ctrl-C
             print("Ctrl-C")
-
-        # Windowsの場合はプロミスキャスモードを無効
-        if os.name == "nt":
-            terce_scan.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF)
+            scan.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF)

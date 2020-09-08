@@ -176,7 +176,7 @@ class pcapparser:
         with open(self.filesource, mode='rb') as f:
             pcapfile = f.read()
         pcapfilehdr = pcap_hdr_s(pcapfile[0:24])
-        pcaprecfile = pcaprec_hdr_s(pcapfile[24:42])
+        pcaprecfile = pcaprec_hdr_s(pcapfile[24:4])
 
         print(hex(pcapfilehdr.magic_number))
         print(hex(pcaprecfile.ts_sec))

@@ -75,3 +75,16 @@ class pcap_hdr_s(Structure):
 
     def __init__(self, pcap_buffer):
         pass
+class pcaprec_hdr_s(Structure):
+    _fields_ = [ 
+        ("ts_sec",               c_uint32),        # /* timestamp seconds */
+        ("ts_usec",              c_uint32),        # /* timestamp microseconds */
+        ("incl_len",             c_uint32),        # /* number of octets of packet saved in file */
+        ("orig_len",             c_uint32)         # /* actual length of packet */
+    ]
+
+    def __new__(self, pcap_buffer):
+        return self.from_buffer_copy(pcap_buffer)
+
+    def __init__(self, pcap_buffer):
+        pass

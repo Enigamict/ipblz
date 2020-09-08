@@ -168,3 +168,15 @@ class pacapch:
         except KeyboardInterrupt: # Ctrl-C
             print("Ctrl-C")
             scan.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF)
+class pcapparser:
+    def __init__(self, filesource):
+        self.filesource = filesource
+
+    def parse(self):
+        with open(self.filesource, mode='rb') as f:
+            pcapfile = f.read()
+        pcapfilehdr = pcap_hdr_s(pcapfile[0:24])
+        pcaprecfile = pcaprec_hdr_s(pcapfile[24:42])
+
+        print(hex(pcapfilehdr.magic_number))
+        print(hex(pcaprecfile.ts_sec))

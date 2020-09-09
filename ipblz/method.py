@@ -2,6 +2,7 @@ import socket
 import time
 import os
 from header import *
+import sys
 
 class udp: # UDP形式のパケットを送信開示する
     def __init__(self, host, sport, dport):
@@ -186,9 +187,12 @@ class pcapparser:　# 未完成
         print(packet)
 
 
-        for i in range(0, 4):
+        try:
+            while True:
             nextrechdr = plen + 16
             a = pcaprec_hdr_s(content[plen:nextrechdr])
             endpackethdr = nextrechdr + a.incl_len
             plen = endpackethdr
             print(content[nextrechdr:endpackethdr])
+        except ValueError:
+            sys.exit()

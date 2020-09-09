@@ -168,7 +168,7 @@ class pacapch:
         except KeyboardInterrupt: # Ctrl-C
             print("Ctrl-C")
             scan.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF)
-class pcapparser:
+class pcapparser:　# 未完成
     def __init__(self, filesource):
         self.filesource = filesource
 
@@ -180,3 +180,15 @@ class pcapparser:
 
         print(hex(pcapfilehdr.magic_number))
         print(hex(pcaprecfile.ts_sec))
+        print(pcaprecfile.orig_len)
+        plen = pcaprecfile.incl_len + 40
+        packet.append(content[40:plen])
+        print(packet)
+
+
+        for i in range(0, 4):
+            nextrechdr = plen + 16
+            a = pcaprec_hdr_s(content[plen:nextrechdr])
+            endpackethdr = nextrechdr + a.incl_len
+            plen = endpackethdr
+            print(content[nextrechdr:endpackethdr])

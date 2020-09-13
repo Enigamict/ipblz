@@ -88,3 +88,16 @@ class pcaprec_hdr_s(Structure):
 
     def __init__(self, pcap_buffer):
         pass
+    
+class ethhdr(Structure):
+    _fields_ = [
+        ("ether_dhost",          c_uint8 * 6),
+        ("ether_shost",          c_uint8 * 6),
+        ("ether_type",           c_uint16)
+    ]
+
+    def __new__(self, eth_buffer):
+        return self.from_buffer_copy(eth_buffer)
+
+    def __init__(self, pcap_buffer):
+        pass

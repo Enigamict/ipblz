@@ -177,22 +177,34 @@ class pcapparser:　# 未完成
         with open(self.filesource, mode='rb') as f:
             pcapfile = f.read()
         pcapfilehdr = pcap_hdr_s(pcapfile[0:24])
-        pcaprecfile = pcaprec_hdr_s(pcapfile[24:4])
+        pcaprecfile = pcaprec_hdr_s(pcapfile[24:40])
+        packet = []
+        nextrechdr = 0
 
-        print(hex(pcapfilehdr.magic_number))
-        print(hex(pcaprecfile.ts_sec))
-        print(pcaprecfile.orig_len)
+        print("magic_number = {}".format(hex(pcapfilehdr.magic_number)))
+        print("version_major = {}".format(hex(pcapfilehdr.version_major)))
+        print("version_minor = {}".format(hex(pcapfilehdr.version_minor)))
+        print("thiszone = {}".format(hex(pcapfilehdr.thiszone)))
+        print("sigfigs = {}".format(hex(pcapfilehdr.sigfigs)))
+        print("snaplen = {}".format(hex(pcapfilehdr.snaplen)))
+        print("network = {}".format(hex(pcapfilehdr.network)))
+
+
         plen = pcaprecfile.incl_len + 40
-        packet.append(content[40:plen])
-        print(packet)
+        packet.append(pcapfile[40:plen])
 
 
         try:
             while True:
-            nextrechdr = plen + 16
-            a = pcaprec_hdr_s(content[plen:nextrechdr])
-            endpackethdr = nextrechdr + a.incl_len
-            plen = endpackethdr
-            print(content[nextrechdr:endpackethdr])
+                nextrechdr = plen + 16
+                a = pcaprec_hdr_s(pcapfile[plen:nextrechdr])
+                endpackethdr = nextrechdr + a.incl_len
+                plen = endpackethdr
+                packet.append(pcapfile[nextrechdr:endpackethdr])
         except ValueError:
+            eth = ethhdr(packet[1][0:14])
+            print(packet[1][0:14])
+            print(bytearray(eth.ether_dhost).hex())
+            print(bytearray(eth.ether_shost).hex())
+            print(hex(eth.ether_type))
             sys.exit()
